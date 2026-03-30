@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -6,6 +7,7 @@ import { useAuth } from '@/lib/auth';
 import { useConversation } from '@/hooks/useMessages';
 import { Avatar } from '@/components/ui/Avatar';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
+import { useToast } from '@/components/ui/Toast';
 import { MessageBubble } from './MessageBubble';
 import { MessageInput } from './MessageInput';
 import { colors } from '@/lib/colors';
@@ -21,10 +23,17 @@ export function ConversationThread({ conversationId, otherParticipant }: Convers
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { profile } = useAuth();
-  const { messages, loading, sending, send, loadMore } = useConversation(
+  const toast = useToast();
+  const { messages, loading, sending, error, send, loadMore } = useConversation(
     conversationId,
     profile?.id,
   );
+
+  useEffect(() => {
+    if (error) {
+      toast.show(error, 'error');
+    }
+  }, [error]);
 
   if (loading && messages.length === 0) {
     return <LoadingScreen />;

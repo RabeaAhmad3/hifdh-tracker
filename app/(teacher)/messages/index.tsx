@@ -1,5 +1,7 @@
-import { SafeAreaView, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useCallback } from 'react';
+import { Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '@/lib/auth';
 import { useConversations } from '@/hooks/useMessages';
 import { ConversationList } from '@/components/chat/ConversationList';
@@ -9,6 +11,12 @@ export default function TeacherMessages() {
   const router = useRouter();
   const { profile } = useAuth();
   const { conversations, loading, refresh } = useConversations(profile?.id);
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh]),
+  );
 
   const handlePress = (conversation: ConversationWithDetails) => {
     router.push({

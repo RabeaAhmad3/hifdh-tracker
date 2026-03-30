@@ -1,6 +1,9 @@
-import { FlatList, SafeAreaView, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useCallback, useEffect } from 'react';
+import { FlatList, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '@/lib/auth';
+import { useToast } from '@/components/ui/Toast';
 import { useConversations } from '@/hooks/useMessages';
 import { useUpcomingMeetings } from '@/hooks/useMeetingScheduling';
 import { ConversationList } from '@/components/chat/ConversationList';
@@ -10,8 +13,21 @@ import type { ConversationWithDetails } from '@/lib/types';
 export default function ParentMessages() {
   const router = useRouter();
   const { profile } = useAuth();
-  const { conversations, loading, refresh } = useConversations(profile?.id);
+  const toast = useToast();
+  const { conversations, loading, error, refresh } = useConversations(profile?.id);
   const { meetings, cancel } = useUpcomingMeetings(profile?.id, 'parent');
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh]),
+  );
+
+  useEffect(() => {
+    if (error) {
+      toast.show(error, 'error');
+    }
+  }, [error]);
 
   const handlePress = (conversation: ConversationWithDetails) => {
     router.push({

@@ -319,11 +319,8 @@ export function useConversations(userId: string | undefined) {
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'messages' },
-        (payload) => {
-          const convId = (payload.new as { conversation_id: string }).conversation_id;
-          if (conversationsRef.current.some((c) => c.id === convId)) {
-            fetchAll();
-          }
+        () => {
+          fetchAll();
         },
       )
       .subscribe();
