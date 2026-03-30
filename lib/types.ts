@@ -208,3 +208,33 @@ export interface ClassOverview {
 }
 
 export type DateRangePreset = 'this_week' | 'this_month' | 'custom';
+
+// ============================================================
+// Chat / messaging types
+// ============================================================
+
+export interface ConversationWithDetails {
+  id: string;
+  updated_at: string;
+  other_participant: {
+    id: string;
+    full_name: string;
+    avatar_url: string | null;
+    role: UserRole;
+  };
+  last_message: { content: string; created_at: string; sender_id: string } | null;
+  unread_count: number;
+}
+
+export interface MessageWithSender extends Message {
+  sender_name: string;
+  sender_avatar_url: string | null;
+}
+
+export interface StaffMember {
+  id: string;
+  full_name: string;
+  role: UserRole;
+  avatar_url: string | null;
+  availability: TeacherAvailability[];
+}

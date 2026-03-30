@@ -77,6 +77,17 @@ export const DATE_RANGE_LABELS: Record<DateRangePreset, string> = {
   custom: 'Custom',
 };
 
+/** Columns selected when querying the messages table */
+export const MESSAGE_COLUMNS =
+  'id, conversation_id, sender_id, content, is_read, created_at' as const;
+
+/** Columns selected when querying the teacher_availability table */
+export const TEACHER_AVAILABILITY_COLUMNS =
+  'id, teacher_id, day_of_week, start_time, end_time, created_at, updated_at' as const;
+
+/** Full day-of-week labels (Sunday-first) */
+export const DAY_LABELS_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;
+
 /** Returns a semantic color based on pass rate percentage */
 export function getPassRateColor(rate: number): string {
   if (rate >= 70) return colors.success;
