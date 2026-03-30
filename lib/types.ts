@@ -168,6 +168,16 @@ export interface PushToken {
   updated_at: string;
 }
 
+export type NotificationType = 'new_assignment' | 'new_message' | 'meeting_booked' | 'absence';
+
+export interface NotificationPreferences {
+  user_id: string;
+  new_assignment: boolean;
+  new_message: boolean;
+  meeting_booked: boolean;
+  absence: boolean;
+}
+
 // ============================================================
 // Report & Analytics types
 // ============================================================

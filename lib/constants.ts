@@ -1,5 +1,5 @@
 import { format, parse } from 'date-fns';
-import type { AssignmentCategory, AttendanceStatus, BehaviorRating, DateRangePreset } from '@/lib/types';
+import type { AssignmentCategory, AttendanceStatus, BehaviorRating, DateRangePreset, NotificationType, UserRole } from '@/lib/types';
 import { colors } from '@/lib/colors';
 
 export const APP_NAME = 'Hifdh Tracker';
@@ -99,6 +99,23 @@ export const MEETING_BOOKING_COLUMNS =
 
 /** Duration of each meeting slot in minutes */
 export const MEETING_SLOT_DURATION_MINUTES = 30;
+
+/** Columns selected when querying the notification_preferences table */
+export const NOTIFICATION_PREFERENCES_COLUMNS =
+  'user_id, new_assignment, new_message, meeting_booked, absence' as const;
+
+/** Notification preference options with labels, descriptions, and applicable roles */
+export const NOTIFICATION_PREFERENCE_OPTIONS: {
+  key: NotificationType;
+  label: string;
+  description: string;
+  roles: UserRole[];
+}[] = [
+  { key: 'new_assignment', label: 'New Assignments', description: 'When a new assignment is recorded', roles: ['parent'] },
+  { key: 'new_message', label: 'Messages', description: 'When you receive a new message', roles: ['teacher', 'parent'] },
+  { key: 'meeting_booked', label: 'Meeting Bookings', description: 'When a meeting is scheduled', roles: ['teacher'] },
+  { key: 'absence', label: 'Attendance Alerts', description: 'When a student is marked absent', roles: ['parent'] },
+];
 
 /** Full day-of-week labels (Sunday-first) */
 export const DAY_LABELS_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;

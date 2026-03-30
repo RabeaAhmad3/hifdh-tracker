@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/Toast';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { ProfileForm } from '@/components/settings/ProfileForm';
+import { NotificationPreferences } from '@/components/settings/NotificationPreferences';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { SectionDivider } from '@/components/ui/SectionDivider';
@@ -88,6 +89,10 @@ export default function TeacherSettings() {
             </View>
           </Button>
         </View>
+
+        <SectionDivider />
+
+        <NotificationPreferences userId={profile.id} role="teacher" />
 
         <SectionDivider />
 
