@@ -216,6 +216,7 @@ export async function fetchStaffDirectory(): Promise<{
         .from('teacher_availability')
         .select(TEACHER_AVAILABILITY_COLUMNS)
         .in('teacher_id', teacherIds)
+        .eq('is_active', true)
         .order('day_of_week');
 
       if (aError) throw new Error(aError.message);

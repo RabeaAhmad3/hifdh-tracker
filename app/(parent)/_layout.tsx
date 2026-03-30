@@ -91,6 +91,10 @@ export default function ParentLayout() {
         name="report"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="schedule-meeting"
+        options={{ href: null }}
+      />
     </Tabs>
     </ParentStudentProvider>
   );

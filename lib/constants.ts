@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import type { AssignmentCategory, AttendanceStatus, BehaviorRating, DateRangePreset } from '@/lib/types';
 import { colors } from '@/lib/colors';
 
@@ -83,10 +83,22 @@ export const MESSAGE_COLUMNS =
 
 /** Columns selected when querying the teacher_availability table */
 export const TEACHER_AVAILABILITY_COLUMNS =
-  'id, teacher_id, day_of_week, start_time, end_time, created_at, updated_at' as const;
+  'id, teacher_id, day_of_week, start_time, end_time, is_active, created_at, updated_at' as const;
+
+/** Columns selected when querying the meeting_bookings table */
+export const MEETING_BOOKING_COLUMNS =
+  'id, teacher_id, parent_id, student_id, date, start_time, end_time, status, notes, google_event_id, created_at, updated_at' as const;
+
+/** Duration of each meeting slot in minutes */
+export const MEETING_SLOT_DURATION_MINUTES = 30;
 
 /** Full day-of-week labels (Sunday-first) */
 export const DAY_LABELS_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;
+
+/** Format a HH:mm:ss time string to a human-readable format (e.g. "3:30 PM") */
+export function formatTime(time: string): string {
+  return format(parse(time, 'HH:mm:ss', new Date()), 'h:mm a');
+}
 
 /** Returns a semantic color based on pass rate percentage */
 export function getPassRateColor(rate: number): string {

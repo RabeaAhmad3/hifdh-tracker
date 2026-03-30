@@ -1,14 +1,17 @@
-import { SafeAreaView, Text, View } from 'react-native';
+import { FlatList, SafeAreaView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/lib/auth';
 import { useConversations } from '@/hooks/useMessages';
+import { useUpcomingMeetings } from '@/hooks/useMeetingScheduling';
 import { ConversationList } from '@/components/chat/ConversationList';
+import { UpcomingMeetingCard } from '@/components/meetings/UpcomingMeetingCard';
 import type { ConversationWithDetails } from '@/lib/types';
 
 export default function ParentMessages() {
   const router = useRouter();
   const { profile } = useAuth();
   const { conversations, loading, refresh } = useConversations(profile?.id);
+  const { meetings, cancel } = useUpcomingMeetings(profile?.id, 'parent');
 
   const handlePress = (conversation: ConversationWithDetails) => {
     router.push({
@@ -25,6 +28,31 @@ export default function ParentMessages() {
 
   return (
     <SafeAreaView className="flex-1 bg-offwhite">
+      {/* Upcoming Meetings */}
+      {meetings.length > 0 && (
+        <View className="border-b border-gray-100 pb-2">
+          <Text className="px-4 pb-2 pt-4 font-body-semibold text-[14px] text-gray-600">
+            Upcoming Meetings
+          </Text>
+          <FlatList
+            data={meetings}
+            keyExtractor={(item) => item.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
+            renderItem={({ item }) => (
+              <View style={{ width: 280 }}>
+                <UpcomingMeetingCard
+                  meeting={item}
+                  role="parent"
+                  onCancel={cancel}
+                />
+              </View>
+            )}
+          />
+        </View>
+      )}
+
       <View className="px-4 pb-2 pt-4">
         <Text className="font-heading text-[24px] text-charcoal">Messages</Text>
       </View>

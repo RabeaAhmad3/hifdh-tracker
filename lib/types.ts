@@ -132,6 +132,7 @@ export interface TeacherAvailability {
   day_of_week: number;
   start_time: string;
   end_time: string;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -149,6 +150,12 @@ export interface MeetingBooking {
   google_event_id: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface MeetingBookingWithDetails extends MeetingBooking {
+  teacher_name: string;
+  parent_name: string;
+  student_name: string;
 }
 
 export interface PushToken {

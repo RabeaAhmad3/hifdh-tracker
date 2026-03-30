@@ -95,15 +95,32 @@ export default function ParentNewMessage() {
                   </Text>
                 )}
               </View>
-              <Button
-                variant="primary"
-                size="sm"
-                loading={creating === item.id}
-                disabled={creating !== null}
-                onPress={() => handleMessage(item.id)}
-              >
-                Message
-              </Button>
+              <View className="flex-row gap-2">
+                {item.role === 'teacher' && item.availability.length > 0 && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={creating !== null}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/(parent)/schedule-meeting',
+                        params: { teacherId: item.id, teacherName: item.full_name },
+                      })
+                    }
+                  >
+                    Schedule
+                  </Button>
+                )}
+                <Button
+                  variant="primary"
+                  size="sm"
+                  loading={creating === item.id}
+                  disabled={creating !== null}
+                  onPress={() => handleMessage(item.id)}
+                >
+                  Message
+                </Button>
+              </View>
             </View>
           );
         }}
