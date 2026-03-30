@@ -11,24 +11,32 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#F8F8F8"
     },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.qalaminstitute.hifdhtracker",
+      "buildNumber": "1",
       "infoPlist": {
         "UIBackgroundModes": [
           "remote-notification"
-        ]
+        ],
+        "NSCameraUsageDescription": "Used for profile photos",
+        "NSPhotoLibraryUsageDescription": "Used for profile photos"
       }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#3B8EAD"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.qalaminstitute.hifdhtracker"
+      "package": "com.qalaminstitute.hifdhtracker",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"

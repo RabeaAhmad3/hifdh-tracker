@@ -18,6 +18,9 @@ android/
 .DS_Store
 *.pem
 
+# Store credentials
+google-play-service-account.json
+
 # Supabase temp
 supabase/.temp/
 
