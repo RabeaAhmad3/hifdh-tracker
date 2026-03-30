@@ -1,6 +1,6 @@
 import '../global.css';
 import { useEffect } from 'react';
-import { Slot } from 'expo-router';
+import { Slot, useSegments, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
@@ -16,8 +16,38 @@ import {
   Amiri_400Regular,
   Amiri_700Bold,
 } from '@expo-google-fonts/amiri';
+import { AuthProvider, useAuth } from '@/lib/auth';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+function RootNavigator() {
+  const { session, profile, isLoading } = useAuth();
+  const inAuthGroup = useSegments()[0] === '(auth)';
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (!session && !inAuthGroup) {
+      router.replace('/(auth)/login');
+    } else if (session && profile && inAuthGroup) {
+      // admin uses teacher dashboard intentionally
+      router.replace(
+        profile.role === 'parent' ? '/(parent)/dashboard' : '/(teacher)/dashboard'
+      );
+    }
+  }, [session, profile, isLoading, inAuthGroup, router]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      SplashScreen.hideAsync();
+    }
+  }, [isLoading]);
+
+  if (isLoading) return null;
+
+  return <Slot />;
+}
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -30,10 +60,10 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (fontsLoaded || fontError) {
+    if (fontError) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontError]);
 
   if (!fontsLoaded && !fontError) {
     return null;
@@ -41,7 +71,9 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <Slot />
+      <AuthProvider>
+        <RootNavigator />
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }
