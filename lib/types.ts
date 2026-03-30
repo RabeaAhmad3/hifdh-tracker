@@ -158,3 +158,53 @@ export interface PushToken {
   created_at: string;
   updated_at: string;
 }
+
+// ============================================================
+// Report & Analytics types
+// ============================================================
+
+export interface CategoryPassRate {
+  total: number;
+  passed: number;
+  pass_rate: number;
+  pages: number;
+}
+
+export interface StudentReport {
+  new_lesson: CategoryPassRate;
+  previous_lesson: CategoryPassRate;
+  revision: CategoryPassRate;
+}
+
+export interface TrendDataPoint {
+  date: string;
+  category: AssignmentCategory;
+  passed: boolean;
+  mistakes: number;
+  pauses: number;
+  pages_completed: number;
+}
+
+export interface AttendanceSummary {
+  present: number;
+  absent: number;
+  late: number;
+  left_early: number;
+  total: number;
+}
+
+export interface BehaviorSummary {
+  very_good: number;
+  good: number;
+  needs_improvement: number;
+  total: number;
+}
+
+export interface ClassOverview {
+  today_attendance: { present: number; total: number };
+  students_without_assignments_today: { id: string; full_name: string }[];
+  weekly_pass_rates: { new_lesson: number; previous_lesson: number; revision: number };
+  pending_excuses: number;
+}
+
+export type DateRangePreset = 'this_week' | 'this_month' | 'custom';

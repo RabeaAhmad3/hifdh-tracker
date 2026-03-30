@@ -11,6 +11,7 @@ import { STUDENT_COLUMNS } from '@/lib/constants';
 import type { Student } from '@/lib/types';
 import { AssignmentForm } from '@/components/assignments/AssignmentForm';
 import { BehaviorTimeline } from '@/components/behavior/BehaviorTimeline';
+import { StudentReportView } from '@/components/reports/StudentReportView';
 import { useBehaviorHistory } from '@/hooks/useBehaviorHistory';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
@@ -22,7 +23,7 @@ export default function StudentDetail() {
   const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'assignment' | 'behavior'>('assignment');
+  const [activeTab, setActiveTab] = useState<'assignment' | 'behavior' | 'reports'>('assignment');
 
   const {
     entries: behaviorEntries,
@@ -125,34 +126,23 @@ export default function StudentDetail() {
 
       {/* Tab Switcher */}
       <View className="flex-row px-4 mb-2 gap-2">
-        <Pressable
-          onPress={() => setActiveTab('assignment')}
-          className={`flex-1 h-12 items-center justify-center rounded-button ${
-            activeTab === 'assignment' ? 'bg-primary' : 'border border-gray-200'
-          }`}
-        >
-          <Text
-            className={`font-body-medium text-[14px] ${
-              activeTab === 'assignment' ? 'text-white' : 'text-charcoal'
+        {(['assignment', 'behavior', 'reports'] as const).map((tab) => (
+          <Pressable
+            key={tab}
+            onPress={() => setActiveTab(tab)}
+            className={`flex-1 h-12 items-center justify-center rounded-button ${
+              activeTab === tab ? 'bg-primary' : 'border border-gray-200'
             }`}
           >
-            Assignment
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={() => setActiveTab('behavior')}
-          className={`flex-1 h-12 items-center justify-center rounded-button ${
-            activeTab === 'behavior' ? 'bg-primary' : 'border border-gray-200'
-          }`}
-        >
-          <Text
-            className={`font-body-medium text-[14px] ${
-              activeTab === 'behavior' ? 'text-white' : 'text-charcoal'
-            }`}
-          >
-            Behavior History
-          </Text>
-        </Pressable>
+            <Text
+              className={`font-body-medium text-[14px] ${
+                activeTab === tab ? 'text-white' : 'text-charcoal'
+              }`}
+            >
+              {tab === 'assignment' ? 'Assignment' : tab === 'behavior' ? 'Behavior' : 'Reports'}
+            </Text>
+          </Pressable>
+        ))}
       </View>
 
       {/* Tab Content */}
@@ -164,7 +154,7 @@ export default function StudentDetail() {
             onSaved={() => router.back()}
           />
         )
-      ) : (
+      ) : activeTab === 'behavior' ? (
         <ScrollView className="flex-1 px-4" contentContainerClassName="pb-10 pt-2">
           <BehaviorTimeline
             entries={behaviorEntries}
@@ -172,6 +162,8 @@ export default function StudentDetail() {
             loading={behaviorLoading}
           />
         </ScrollView>
+      ) : (
+        <StudentReportView studentId={student.id} studentName={student.full_name} />
       )}
     </SafeAreaView>
   );

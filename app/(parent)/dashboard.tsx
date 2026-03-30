@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { subDays } from 'date-fns';
@@ -8,13 +8,16 @@ import { useParentDashboard } from '@/hooks/useParentDashboard';
 import { useBehaviorHistory } from '@/hooks/useBehaviorHistory';
 import { useAuth } from '@/lib/auth';
 import { toDateString } from '@/lib/constants';
+import { ChevronRight } from 'lucide-react-native';
 import { ChildSelector } from '@/components/parent/ChildSelector';
 import { TodayAssignmentCard } from '@/components/parent/TodayAssignmentCard';
 import { TodayBehaviorCard } from '@/components/parent/TodayBehaviorCard';
 import { TodayAttendanceCard } from '@/components/parent/TodayAttendanceCard';
 import { QuickStatsRow } from '@/components/parent/QuickStatsRow';
+import { Card } from '@/components/ui/Card';
 import { SectionDivider } from '@/components/ui/SectionDivider';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
+import { colors } from '@/lib/colors';
 
 export default function ParentDashboard() {
   const { profile } = useAuth();
@@ -110,7 +113,7 @@ export default function ParentDashboard() {
           />
         </View>
 
-        <View className="mt-6 mb-8">
+        <View className="mt-6 mb-4">
           <QuickStatsRow
             weeklyPassed={weeklyStats.passed}
             weeklyTotal={weeklyStats.total}
@@ -119,6 +122,22 @@ export default function ParentDashboard() {
             monthlyTotal={monthlyAttendance.total}
           />
         </View>
+
+        <Pressable onPress={() => router.push('/(parent)/report')}>
+          <Card className="mb-8">
+            <View className="flex-row items-center justify-between">
+              <View>
+                <Text className="font-body-semibold text-[15px] text-charcoal">
+                  View Full Report
+                </Text>
+                <Text className="font-body text-[13px] text-gray-400 mt-1">
+                  Charts, trends, and detailed analytics
+                </Text>
+              </View>
+              <ChevronRight size={20} color={colors.gray400} />
+            </View>
+          </Card>
+        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );

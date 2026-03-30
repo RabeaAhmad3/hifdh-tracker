@@ -87,6 +87,10 @@ export default function ParentLayout() {
         name="behavior-history"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="report"
+        options={{ href: null }}
+      />
     </Tabs>
     </ParentStudentProvider>
   );

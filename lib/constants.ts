@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import type { AssignmentCategory, AttendanceStatus, BehaviorRating } from '@/lib/types';
+import type { AssignmentCategory, AttendanceStatus, BehaviorRating, DateRangePreset } from '@/lib/types';
 import { colors } from '@/lib/colors';
 
 export const APP_NAME = 'Hifdh Tracker';
@@ -68,4 +68,18 @@ export function formatLabel(value: string): string {
     .split('_')
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ');
+}
+
+/** Human-readable labels for date range presets */
+export const DATE_RANGE_LABELS: Record<DateRangePreset, string> = {
+  this_week: 'This Week',
+  this_month: 'This Month',
+  custom: 'Custom',
+};
+
+/** Returns a semantic color based on pass rate percentage */
+export function getPassRateColor(rate: number): string {
+  if (rate >= 70) return colors.success;
+  if (rate >= 40) return colors.warning;
+  return colors.error;
 }
