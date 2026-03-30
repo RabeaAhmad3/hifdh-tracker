@@ -24,6 +24,10 @@ export const BEHAVIOR_COLUMNS =
 export const ATTENDANCE_COLUMNS =
   'id, student_id, teacher_id, date, status, notes, created_at, updated_at' as const;
 
+/** Columns selected when querying the invite_codes table */
+export const INVITE_CODE_COLUMNS =
+  'id, code, student_id, created_by, status, used_by, expires_at, created_at, updated_at' as const;
+
 /** Human-readable labels for assignment categories */
 export const CATEGORY_LABELS: Record<AssignmentCategory, string> = {
   new_lesson: 'New Lesson',

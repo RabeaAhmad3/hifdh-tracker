@@ -14,6 +14,7 @@ import { BehaviorTimeline } from '@/components/behavior/BehaviorTimeline';
 import { StudentReportView } from '@/components/reports/StudentReportView';
 import { useBehaviorHistory } from '@/hooks/useBehaviorHistory';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
+import { InviteParentCard } from '@/components/invite/InviteParentCard';
 
 export default function StudentDetail() {
   const router = useRouter();
@@ -123,6 +124,9 @@ export default function StudentDetail() {
           </View>
         )}
       </View>
+
+      {/* Invite Parent */}
+      <InviteParentCard studentId={student.id} studentName={student.full_name} />
 
       {/* Tab Switcher */}
       <View className="flex-row px-4 mb-2 gap-2">
