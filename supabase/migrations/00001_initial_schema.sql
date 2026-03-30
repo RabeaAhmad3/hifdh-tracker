@@ -23,21 +23,7 @@ CREATE TYPE invite_status AS ENUM ('pending', 'used', 'expired');
 CREATE TYPE meeting_status AS ENUM ('confirmed', 'cancelled');
 
 -- ============================================================
--- 3. HELPER FUNCTION — get_user_role()
--- ============================================================
-
-CREATE OR REPLACE FUNCTION get_user_role()
-RETURNS user_role
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT role FROM profiles WHERE id = auth.uid();
-$$;
-
--- ============================================================
--- 4. TABLES (FK dependency order)
+-- 3. TABLES (FK dependency order)
 -- ============================================================
 
 -- 4.1 profiles
@@ -202,6 +188,21 @@ CREATE TABLE push_tokens (
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (user_id, token)
 );
+
+-- ============================================================
+-- 4. HELPER FUNCTION — get_user_role()
+-- (after tables so SQL function body can reference profiles)
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION get_user_role()
+RETURNS user_role
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT role FROM profiles WHERE id = auth.uid();
+$$;
 
 -- ============================================================
 -- 5. INDEXES
