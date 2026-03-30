@@ -22,7 +22,10 @@ export interface Profile {
 export interface Student {
   id: string;
   full_name: string;
+  arabic_name: string | null;
   date_of_birth: string | null;
+  current_surah: string | null;
+  current_juz: number | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -58,6 +61,11 @@ export interface Assignment {
   start_ayah: number | null;
   end_ayah: number | null;
   status: PassStatus | null;
+  mistakes: number;
+  pauses: number;
+  pages_completed: number;
+  recited_to: string | null;
+  next_assignment: string | null;
   notes: string | null;
   parent_reviewed: boolean;
   parent_reviewed_at: string | null;

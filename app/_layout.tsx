@@ -17,6 +17,7 @@ import {
   Amiri_700Bold,
 } from '@expo-google-fonts/amiri';
 import { AuthProvider, useAuth } from '@/lib/auth';
+import { ToastProvider } from '@/components/ui/Toast';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -71,9 +72,11 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <RootNavigator />
-      </AuthProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <RootNavigator />
+        </AuthProvider>
+      </ToastProvider>
     </SafeAreaProvider>
   );
 }
