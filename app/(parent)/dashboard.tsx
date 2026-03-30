@@ -1,8 +1,13 @@
+import { useMemo } from 'react';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { subDays } from 'date-fns';
 import { useParentStudentContext } from '@/lib/ParentStudentContext';
 import { useParentDashboard } from '@/hooks/useParentDashboard';
+import { useBehaviorHistory } from '@/hooks/useBehaviorHistory';
 import { useAuth } from '@/lib/auth';
+import { toDateString } from '@/lib/constants';
 import { ChildSelector } from '@/components/parent/ChildSelector';
 import { TodayAssignmentCard } from '@/components/parent/TodayAssignmentCard';
 import { TodayBehaviorCard } from '@/components/parent/TodayBehaviorCard';
@@ -13,6 +18,7 @@ import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 export default function ParentDashboard() {
   const { profile } = useAuth();
+  const router = useRouter();
   const {
     students,
     selectedStudent,
@@ -31,6 +37,19 @@ export default function ParentDashboard() {
     refresh,
     markReviewed,
   } = useParentDashboard(selectedStudent?.id ?? null);
+
+  const { entriesByDate } = useBehaviorHistory(selectedStudent?.id ?? null, 7);
+
+  // Build weekHistory array for the last 7 days
+  const weekHistory = useMemo(() => {
+    const today = new Date();
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = subDays(today, 6 - i);
+      const dateStr = toDateString(d);
+      const entry = entriesByDate.get(dateStr);
+      return { date: dateStr, rating: entry?.rating ?? null };
+    });
+  }, [entriesByDate]);
 
   const firstName = profile?.full_name?.split(' ')[0] ?? '';
 
@@ -76,7 +95,11 @@ export default function ParentDashboard() {
 
         <SectionDivider />
 
-        <TodayBehaviorCard behavior={behavior} />
+        <TodayBehaviorCard
+          behavior={behavior}
+          weekHistory={weekHistory}
+          onViewHistory={() => router.push('/(parent)/behavior-history')}
+        />
 
         <View className="mt-3">
           <TodayAttendanceCard attendance={attendance} />

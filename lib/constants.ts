@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
-import type { AssignmentCategory } from '@/lib/types';
+import type { AssignmentCategory, BehaviorRating } from '@/lib/types';
+import { colors } from '@/lib/colors';
 
 export const APP_NAME = 'Hifdh Tracker';
 
@@ -24,6 +25,16 @@ export const CATEGORY_LABELS: Record<AssignmentCategory, string> = {
   new_lesson: 'New Lesson',
   previous_lesson: 'Previous Lesson',
   revision: 'Revision',
+};
+
+/** Day-of-week abbreviations starting from Sunday */
+export const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'] as const;
+
+/** Semantic color for each behavior rating */
+export const RATING_COLORS: Record<BehaviorRating, string> = {
+  very_good: colors.success,
+  good: colors.accent,
+  needs_improvement: colors.warning,
 };
 
 /** Format a Date to the yyyy-MM-dd string used for Supabase queries */

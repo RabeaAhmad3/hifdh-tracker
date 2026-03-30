@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
@@ -10,6 +10,8 @@ import { colors } from '@/lib/colors';
 import { STUDENT_COLUMNS } from '@/lib/constants';
 import type { Student } from '@/lib/types';
 import { AssignmentForm } from '@/components/assignments/AssignmentForm';
+import { BehaviorTimeline } from '@/components/behavior/BehaviorTimeline';
+import { useBehaviorHistory } from '@/hooks/useBehaviorHistory';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 export default function StudentDetail() {
@@ -20,6 +22,13 @@ export default function StudentDetail() {
   const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'assignment' | 'behavior'>('assignment');
+
+  const {
+    entries: behaviorEntries,
+    entriesByDate: behaviorByDate,
+    loading: behaviorLoading,
+  } = useBehaviorHistory(activeTab === 'behavior' ? (id ?? null) : null);
 
   const fetchStudent = useCallback(async () => {
     if (!id) return;
@@ -114,13 +123,55 @@ export default function StudentDetail() {
         )}
       </View>
 
-      {/* Assignment Form */}
-      {profile != null && (
-        <AssignmentForm
-          studentId={student.id}
-          teacherId={profile.id}
-          onSaved={() => router.back()}
-        />
+      {/* Tab Switcher */}
+      <View className="flex-row px-4 mb-2 gap-2">
+        <Pressable
+          onPress={() => setActiveTab('assignment')}
+          className={`flex-1 h-12 items-center justify-center rounded-button ${
+            activeTab === 'assignment' ? 'bg-primary' : 'border border-gray-200'
+          }`}
+        >
+          <Text
+            className={`font-body-medium text-[14px] ${
+              activeTab === 'assignment' ? 'text-white' : 'text-charcoal'
+            }`}
+          >
+            Assignment
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => setActiveTab('behavior')}
+          className={`flex-1 h-12 items-center justify-center rounded-button ${
+            activeTab === 'behavior' ? 'bg-primary' : 'border border-gray-200'
+          }`}
+        >
+          <Text
+            className={`font-body-medium text-[14px] ${
+              activeTab === 'behavior' ? 'text-white' : 'text-charcoal'
+            }`}
+          >
+            Behavior History
+          </Text>
+        </Pressable>
+      </View>
+
+      {/* Tab Content */}
+      {activeTab === 'assignment' ? (
+        profile != null && (
+          <AssignmentForm
+            studentId={student.id}
+            teacherId={profile.id}
+            onSaved={() => router.back()}
+          />
+        )
+      ) : (
+        <ScrollView className="flex-1 px-4" contentContainerClassName="pb-10 pt-2">
+          <BehaviorTimeline
+            entries={behaviorEntries}
+            entriesByDate={behaviorByDate}
+            loading={behaviorLoading}
+          />
+        </ScrollView>
       )}
     </SafeAreaView>
   );
