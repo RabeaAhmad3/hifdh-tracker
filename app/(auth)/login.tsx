@@ -95,7 +95,7 @@ export default function Login() {
               <Text className="font-body text-[13px] text-error">{serverError}</Text>
             ) : null}
 
-            <Button title="Sign In" onPress={handleSubmit(onSubmit)} loading={isSubmitting} />
+            <Button onPress={handleSubmit(onSubmit)} loading={isSubmitting}>Sign In</Button>
           </View>
 
           {/* Register Link */}

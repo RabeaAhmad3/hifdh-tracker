@@ -161,11 +161,9 @@ export default function Register() {
               <Text className="font-body text-[13px] text-error">{serverError}</Text>
             ) : null}
 
-            <Button
-              title="Create Account"
-              onPress={handleSubmit(onSubmit)}
-              loading={isSubmitting}
-            />
+            <Button onPress={handleSubmit(onSubmit)} loading={isSubmitting}>
+              Create Account
+            </Button>
           </View>
 
           {/* Login Link */}

@@ -1,11 +1,13 @@
+import { type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, Text } from 'react-native';
 
 interface ButtonProps {
-  title: string;
+  children: ReactNode;
   onPress?: () => void;
   loading?: boolean;
   disabled?: boolean;
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'accent';
+  size?: 'sm' | 'md' | 'lg';
 }
 
 const variantStyles = {
@@ -24,14 +26,32 @@ const variantStyles = {
     text: 'text-charcoal',
     indicator: '#2C2C2C',
   },
+  accent: {
+    container: 'bg-coral',
+    text: 'text-white',
+    indicator: '#FFFFFF',
+  },
+};
+
+const sizeStyles = {
+  sm: 'h-10 px-4',
+  md: 'h-12 px-6',
+  lg: 'h-14 px-8',
+};
+
+const sizeText = {
+  sm: 'text-[13px]',
+  md: 'text-[15px]',
+  lg: 'text-[17px]',
 };
 
 export function Button({
-  title,
+  children,
   onPress,
   loading = false,
   disabled = false,
   variant = 'primary',
+  size = 'md',
 }: ButtonProps) {
   const styles = variantStyles[variant];
   const isDisabled = disabled || loading;
@@ -40,14 +60,16 @@ export function Button({
     <Pressable
       onPress={onPress}
       disabled={isDisabled}
-      className={`h-12 items-center justify-center rounded-button px-6 ${styles.container} ${
+      className={`items-center justify-center rounded-button ${sizeStyles[size]} ${styles.container} ${
         isDisabled ? 'opacity-50' : ''
       }`}
     >
       {loading ? (
         <ActivityIndicator color={styles.indicator} />
+      ) : typeof children === 'string' ? (
+        <Text className={`font-body-semibold ${sizeText[size]} ${styles.text}`}>{children}</Text>
       ) : (
-        <Text className={`font-body-semibold text-[15px] ${styles.text}`}>{title}</Text>
+        children
       )}
     </Pressable>
   );

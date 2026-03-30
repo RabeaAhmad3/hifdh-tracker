@@ -2,6 +2,7 @@ import { View, StyleSheet } from 'react-native';
 
 interface CardProps {
   children: React.ReactNode;
+  className?: string;
 }
 
 const styles = StyleSheet.create({
@@ -14,9 +15,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export function Card({ children }: CardProps) {
+export function Card({ children, className }: CardProps) {
   return (
-    <View className="rounded-card bg-white p-4" style={styles.shadow}>
+    <View className={`rounded-card bg-white p-4 ${className ?? ''}`} style={styles.shadow}>
       {children}
     </View>
   );
