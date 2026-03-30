@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { type Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { type Profile } from '@/lib/types';
+import { getCurrentPushToken, clearCachedPushToken } from '@/hooks/useNotifications';
 
 interface AuthContextType {
   session: Session | null;
@@ -145,6 +146,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const handleSignOut = useCallback(async () => {
+    // Remove push token before signing out so device stops receiving notifications
+    try {
+      const token = await getCurrentPushToken();
+      if (token) {
+        await supabase.from('push_tokens').delete().eq('token', token);
+      }
+    } catch {
+      // Non-critical — proceed with sign-out even if token cleanup fails
+    }
+    clearCachedPushToken();
+
     currentUserIdRef.current = null;
     setSession(null);
     setProfile(null);

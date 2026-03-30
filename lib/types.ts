@@ -162,6 +162,7 @@ export interface PushToken {
   id: string;
   user_id: string;
   token: string;
+  platform: string;
   created_at: string;
   updated_at: string;
 }

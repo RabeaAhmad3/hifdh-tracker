@@ -18,6 +18,7 @@ import {
 } from '@expo-google-fonts/amiri';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { ToastProvider } from '@/components/ui/Toast';
+import { useNotifications } from '@/hooks/useNotifications';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -25,6 +26,8 @@ function RootNavigator() {
   const { session, profile, isLoading } = useAuth();
   const inAuthGroup = useSegments()[0] === '(auth)';
   const router = useRouter();
+
+  useNotifications(session?.user?.id, profile?.role);
 
   useEffect(() => {
     if (isLoading) return;
