@@ -10,11 +10,21 @@ CREATE EXTENSION IF NOT EXISTS pg_net SCHEMA extensions;
 -- 2. Add platform column to push_tokens
 ALTER TABLE push_tokens ADD COLUMN platform TEXT NOT NULL DEFAULT 'unknown';
 
+-- 3. Config table for secrets (avoids ALTER DATABASE which requires superuser)
+CREATE TABLE IF NOT EXISTS app_config (
+  key   TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
+ALTER TABLE app_config ENABLE ROW LEVEL SECURITY;
+-- No RLS policies — only SECURITY DEFINER functions can read this table
+
+INSERT INTO app_config (key, value) VALUES
+  ('supabase_url', 'https://empgxbgtacofadsicazd.supabase.co'),
+  ('service_role_key', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtcGd4Ymd0YWNvZmFkc2ljYXpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDgzMDU1MywiZXhwIjoyMDkwNDA2NTUzfQ.eHyTzLr1rZxI-odFbeUX1RV60yUr2HkQ0qiU5sXW7gQ')
+ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
+
 -- ============================================================
--- 3. Shared helper for sending push notifications
--- Requires database settings (set once via SQL editor):
---   app.settings.supabase_url
---   app.settings.service_role_key
+-- 4. Shared helper for sending push notifications
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION send_push_notification(p_payload JSONB)
@@ -26,11 +36,11 @@ DECLARE
   v_supabase_url TEXT;
   v_service_key TEXT;
 BEGIN
-  v_supabase_url := current_setting('app.settings.supabase_url', true);
-  v_service_key  := current_setting('app.settings.service_role_key', true);
+  SELECT value INTO v_supabase_url FROM app_config WHERE key = 'supabase_url';
+  SELECT value INTO v_service_key  FROM app_config WHERE key = 'service_role_key';
 
   IF v_supabase_url IS NULL OR v_service_key IS NULL THEN
-    RAISE WARNING 'Push notification skipped: app.settings.supabase_url or service_role_key not configured';
+    RAISE WARNING 'Push notification skipped: app_config missing supabase_url or service_role_key';
     RETURN;
   END IF;
 

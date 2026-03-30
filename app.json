@@ -17,7 +17,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.qalaminstitute.hifdhtracker",
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification"]
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
       }
     },
     "android": {
@@ -33,8 +35,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "YOUR_EAS_PROJECT_ID"
-      }
+        "projectId": "f263dbcf-b249-44fd-adfa-ebb7786d4575"
+      },
+      "router": {}
     },
     "plugins": [
       "expo-router",
@@ -42,6 +45,7 @@
       "expo-secure-store",
       "@react-native-community/datetimepicker",
       "expo-notifications"
-    ]
+    ],
+    "owner": "rabeaahmad"
   }
 }
