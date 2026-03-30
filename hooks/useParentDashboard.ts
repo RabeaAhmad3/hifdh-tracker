@@ -11,8 +11,9 @@ import {
   ASSIGNMENT_COLUMNS,
   BEHAVIOR_COLUMNS,
   ATTENDANCE_COLUMNS,
+  ABSENCE_EXCUSE_COLUMNS,
 } from '@/lib/constants';
-import type { Assignment, Attendance, BehaviorLog } from '@/lib/types';
+import type { AbsenceExcuse, Assignment, Attendance, BehaviorLog } from '@/lib/types';
 
 interface WeeklyStats {
   passed: number;
@@ -28,6 +29,7 @@ export interface ParentDashboardData {
   assignments: Assignment[];
   behavior: BehaviorLog | null;
   attendance: Attendance | null;
+  todayExcuse: AbsenceExcuse | null;
   weeklyStats: WeeklyStats;
   monthlyAttendance: MonthlyAttendanceStats;
   loading: boolean;
@@ -40,6 +42,7 @@ export function useParentDashboard(studentId: string | null): ParentDashboardDat
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [behavior, setBehavior] = useState<BehaviorLog | null>(null);
   const [attendance, setAttendance] = useState<Attendance | null>(null);
+  const [todayExcuse, setTodayExcuse] = useState<AbsenceExcuse | null>(null);
   const [weeklyStats, setWeeklyStats] = useState<WeeklyStats>({ passed: 0, total: 0 });
   const [monthlyAttendance, setMonthlyAttendance] = useState<MonthlyAttendanceStats>({ present: 0, total: 0 });
   const [loading, setLoading] = useState(true);
@@ -65,6 +68,7 @@ export function useParentDashboard(studentId: string | null): ParentDashboardDat
         attendanceResult,
         weeklyResult,
         monthlyResult,
+        excuseResult,
       ] = await Promise.all([
         // 1. Today's assignments
         supabase
@@ -106,6 +110,14 @@ export function useParentDashboard(studentId: string | null): ParentDashboardDat
           .gte('date', monthStart)
           .lte('date', monthEnd)
           .limit(35),
+        // 6. Today's excuse
+        supabase
+          .from('absence_excuses')
+          .select(ABSENCE_EXCUSE_COLUMNS)
+          .eq('student_id', studentId)
+          .eq('date', today)
+          .limit(1)
+          .maybeSingle(),
       ]);
 
       if (assignmentsResult.error) throw new Error(assignmentsResult.error.message);
@@ -113,10 +125,12 @@ export function useParentDashboard(studentId: string | null): ParentDashboardDat
       if (attendanceResult.error) throw new Error(attendanceResult.error.message);
       if (weeklyResult.error) throw new Error(weeklyResult.error.message);
       if (monthlyResult.error) throw new Error(monthlyResult.error.message);
+      if (excuseResult.error) throw new Error(excuseResult.error.message);
 
       setAssignments((assignmentsResult.data ?? []) as Assignment[]);
       setBehavior((behaviorResult.data as BehaviorLog) ?? null);
       setAttendance((attendanceResult.data as Attendance) ?? null);
+      setTodayExcuse((excuseResult.data as AbsenceExcuse) ?? null);
 
       // Compute weekly stats
       const weekAssignments = (weeklyResult.data ?? []) as { id: string; status: string | null }[];
@@ -194,6 +208,7 @@ export function useParentDashboard(studentId: string | null): ParentDashboardDat
     assignments,
     behavior,
     attendance,
+    todayExcuse,
     weeklyStats,
     monthlyAttendance,
     loading,

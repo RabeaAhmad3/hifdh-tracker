@@ -30,6 +30,7 @@ export default function ParentDashboard() {
     assignments,
     behavior,
     attendance,
+    todayExcuse,
     weeklyStats,
     monthlyAttendance,
     loading: dashboardLoading,
@@ -102,7 +103,11 @@ export default function ParentDashboard() {
         />
 
         <View className="mt-3">
-          <TodayAttendanceCard attendance={attendance} />
+          <TodayAttendanceCard
+            attendance={attendance}
+            excuse={todayExcuse}
+            onSubmitExcuse={() => router.push('/(parent)/attendance')}
+          />
         </View>
 
         <View className="mt-6 mb-8">

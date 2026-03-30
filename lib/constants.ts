@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import type { AssignmentCategory, BehaviorRating } from '@/lib/types';
+import type { AssignmentCategory, AttendanceStatus, BehaviorRating } from '@/lib/types';
 import { colors } from '@/lib/colors';
 
 export const APP_NAME = 'Hifdh Tracker';
@@ -36,6 +36,26 @@ export const RATING_COLORS: Record<BehaviorRating, string> = {
   good: colors.accent,
   needs_improvement: colors.warning,
 };
+
+/** Columns selected when querying the absence_excuses table */
+export const ABSENCE_EXCUSE_COLUMNS =
+  'id, student_id, parent_id, date, reason, created_at' as const;
+
+/** Semantic color for each attendance status */
+export const ATTENDANCE_STATUS_COLORS: Record<AttendanceStatus, string> = {
+  present: colors.success,
+  absent: colors.error,
+  late: colors.warning,
+  left_early: colors.warning,
+};
+
+/** Attendance statuses with human-readable labels */
+export const ATTENDANCE_STATUSES: { key: AttendanceStatus; label: string }[] = [
+  { key: 'present', label: 'Present' },
+  { key: 'absent', label: 'Absent' },
+  { key: 'late', label: 'Late' },
+  { key: 'left_early', label: 'Left Early' },
+];
 
 /** Format a Date to the yyyy-MM-dd string used for Supabase queries */
 export function toDateString(date: Date): string {
