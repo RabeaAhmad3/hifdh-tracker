@@ -7,6 +7,18 @@ export const APP_NAME = 'Hifdh Tracker';
 export const STUDENT_COLUMNS =
   'id, full_name, arabic_name, current_surah, current_juz, notes, date_of_birth, created_at, updated_at' as const;
 
+/** Columns selected when querying the assignments table */
+export const ASSIGNMENT_COLUMNS =
+  'id, student_id, teacher_id, date, category, surah_number, surah_name, start_ayah, end_ayah, status, mistakes, pauses, pages_completed, recited_to, next_assignment, notes, parent_reviewed, parent_reviewed_at, created_at, updated_at' as const;
+
+/** Columns selected when querying the behavior_logs table */
+export const BEHAVIOR_COLUMNS =
+  'id, student_id, teacher_id, date, rating, notes, created_at, updated_at' as const;
+
+/** Columns selected when querying the attendance table */
+export const ATTENDANCE_COLUMNS =
+  'id, student_id, teacher_id, date, status, notes, created_at, updated_at' as const;
+
 /** Human-readable labels for assignment categories */
 export const CATEGORY_LABELS: Record<AssignmentCategory, string> = {
   new_lesson: 'New Lesson',

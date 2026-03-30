@@ -10,6 +10,7 @@ import {
 } from 'lucide-react-native';
 import { colors } from '@/lib/colors';
 import { TabIcon } from '@/components/ui/TabIcon';
+import { ParentStudentProvider } from '@/lib/ParentStudentContext';
 
 export default function ParentLayout() {
   const insets = useSafeAreaInsets();
@@ -35,6 +36,7 @@ export default function ParentLayout() {
   );
 
   return (
+    <ParentStudentProvider>
     <Tabs screenOptions={screenOptions}>
       <Tabs.Screen
         name="dashboard"
@@ -82,5 +84,6 @@ export default function ParentLayout() {
         }}
       />
     </Tabs>
+    </ParentStudentProvider>
   );
 }

@@ -12,6 +12,7 @@ React Native · Expo SDK 52+ (managed) · Expo Router · NativeWind v4 · Supaba
 npx expo start                    # Dev server
 npx expo start --clear            # Dev server (cache cleared)
 npx tsc --noEmit                  # Type check — ALWAYS run before committing
+sb db push                        # Push Supabase migrations (uses project-scoped auth, no login needed)
 eas build --platform all          # Production builds
 eas submit --platform all         # Store submission
 ```

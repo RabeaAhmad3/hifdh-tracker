@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { ASSIGNMENT_COLUMNS, BEHAVIOR_COLUMNS } from '@/lib/constants';
 import type {
   Assignment,
   AssignmentCategory,
@@ -40,16 +41,6 @@ export interface SaveStudentDayPayload {
   } | null;
   nextAssignment: string | null;
 }
-
-// ---------------------------------------------------------------------------
-// Column selections
-// ---------------------------------------------------------------------------
-
-const ASSIGNMENT_COLUMNS =
-  'id, student_id, teacher_id, date, category, surah_number, surah_name, start_ayah, end_ayah, status, mistakes, pauses, pages_completed, recited_to, next_assignment, notes, parent_reviewed, parent_reviewed_at, created_at, updated_at';
-
-const BEHAVIOR_COLUMNS =
-  'id, student_id, teacher_id, date, rating, notes, created_at, updated_at';
 
 // ---------------------------------------------------------------------------
 // fetchForStudentDate
