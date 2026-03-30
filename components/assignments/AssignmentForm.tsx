@@ -1,22 +1,17 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   Text,
   View,
 } from 'react-native';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
-import DateTimePicker, {
-  type DateTimePickerEvent,
-} from '@react-native-community/datetimepicker';
-import { format, addDays, subDays } from 'date-fns';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { DateNavigator } from '@/components/ui/DateNavigator';
 import { useToast } from '@/components/ui/Toast';
-import { colors } from '@/lib/colors';
+import { toDateString, CATEGORY_LABELS } from '@/lib/constants';
 import {
   fetchForStudentDate,
   fetchTeachers,
@@ -48,10 +43,10 @@ interface AssignmentFormProps {
 type CategoryState = Record<AssignmentCategory, CategoryFormData>;
 type ExpandedState = Record<AssignmentCategory, boolean>;
 
-const CATEGORIES: { key: AssignmentCategory; title: string }[] = [
-  { key: 'new_lesson', title: 'New Lesson' },
-  { key: 'previous_lesson', title: 'Previous Lesson' },
-  { key: 'revision', title: 'Revision' },
+const CATEGORY_KEYS: AssignmentCategory[] = [
+  'new_lesson',
+  'previous_lesson',
+  'revision',
 ];
 
 // ---------------------------------------------------------------------------
@@ -115,10 +110,11 @@ export function AssignmentForm({
   onSaved,
 }: AssignmentFormProps) {
   const toast = useToast();
+  const toastRef = useRef(toast);
+  toastRef.current = toast;
 
   // Date state
   const [date, setDate] = useState<Date>(initialDate ?? new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
 
   // Teachers list
   const [teachers, setTeachers] = useState<
@@ -176,7 +172,7 @@ export function AssignmentForm({
     async (d: Date) => {
       setLoading(true);
       try {
-        const dateStr = format(d, 'yyyy-MM-dd');
+        const dateStr = toDateString(d);
         const { assignments, behavior } = await fetchForStudentDate(
           studentId,
           dateStr,
@@ -213,12 +209,12 @@ export function AssignmentForm({
         );
         setNextAssignment(newLessonAssignment?.next_assignment ?? '');
       } catch {
-        toast.show('Failed to load data for this date', 'error');
+        toastRef.current.show('Failed to load data for this date', 'error');
       } finally {
         setLoading(false);
       }
     },
-    [studentId, toast],
+    [studentId],
   );
 
   useEffect(() => {
@@ -226,38 +222,22 @@ export function AssignmentForm({
   }, [date, loadExistingData]);
 
   // ---------------------------------------------------------------------------
-  // Date navigation
+  // Category updates (stable callbacks for React.memo)
   // ---------------------------------------------------------------------------
 
-  const goToPreviousDay = () => setDate((d) => subDays(d, 1));
-  const goToNextDay = () => setDate((d) => addDays(d, 1));
+  const updateCategory = useCallback(
+    (cat: AssignmentCategory, data: CategoryFormData) => {
+      setCategories((prev) => ({ ...prev, [cat]: data }));
+    },
+    [],
+  );
 
-  const handleDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
-    if (Platform.OS === 'android') {
-      setShowDatePicker(false);
-    }
-    if (selectedDate != null) {
-      setDate(selectedDate);
-      if (Platform.OS === 'ios') {
-        setShowDatePicker(false);
-      }
-    }
-  };
-
-  // ---------------------------------------------------------------------------
-  // Category updates
-  // ---------------------------------------------------------------------------
-
-  const updateCategory = (
-    cat: AssignmentCategory,
-    data: CategoryFormData,
-  ) => {
-    setCategories((prev) => ({ ...prev, [cat]: data }));
-  };
-
-  const toggleCategory = (cat: AssignmentCategory) => {
-    setExpanded((prev) => ({ ...prev, [cat]: !prev[cat] }));
-  };
+  const toggleCategory = useCallback(
+    (cat: AssignmentCategory) => {
+      setExpanded((prev) => ({ ...prev, [cat]: !prev[cat] }));
+    },
+    [],
+  );
 
   // ---------------------------------------------------------------------------
   // Save
@@ -266,9 +246,9 @@ export function AssignmentForm({
   const handleSave = async () => {
     setSaving(true);
     try {
-      const dateStr = format(date, 'yyyy-MM-dd');
+      const dateStr = toDateString(date);
 
-      const categoryPayloads = CATEGORIES.map(({ key }) => {
+      const categoryPayloads = CATEGORY_KEYS.map((key) => {
         const d = categories[key];
         return {
           category: key,
@@ -318,8 +298,6 @@ export function AssignmentForm({
   // Render
   // ---------------------------------------------------------------------------
 
-  const dateDisplay = format(date, 'EEE, MMM d, yyyy');
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -331,50 +309,9 @@ export function AssignmentForm({
         keyboardShouldPersistTaps="handled"
       >
         {/* Date navigator */}
-        <View className="flex-row items-center justify-between mb-6">
-          <Pressable
-            onPress={goToPreviousDay}
-            className="h-12 w-12 items-center justify-center"
-            hitSlop={8}
-          >
-            <ChevronLeft size={24} color={colors.primary} />
-          </Pressable>
-
-          <Pressable onPress={() => setShowDatePicker(true)}>
-            <Text className="font-body-semibold text-[16px] text-charcoal">
-              {dateDisplay}
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={goToNextDay}
-            className="h-12 w-12 items-center justify-center"
-            hitSlop={8}
-          >
-            <ChevronRight size={24} color={colors.primary} />
-          </Pressable>
+        <View className="mb-6">
+          <DateNavigator date={date} onChange={setDate} />
         </View>
-
-        {/* Date picker (conditional) */}
-        {showDatePicker && (
-          <View className="mb-4">
-            <DateTimePicker
-              value={date}
-              mode="date"
-              display={Platform.OS === 'ios' ? 'inline' : 'default'}
-              onChange={handleDateChange}
-            />
-            {Platform.OS === 'ios' && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onPress={() => setShowDatePicker(false)}
-              >
-                Done
-              </Button>
-            )}
-          </View>
-        )}
 
         {/* Loading indicator */}
         {loading && (
@@ -384,11 +321,11 @@ export function AssignmentForm({
         )}
 
         {/* Category cards */}
-        {CATEGORIES.map(({ key, title }) => (
+        {CATEGORY_KEYS.map((key) => (
           <View key={key} className="mb-4">
             <CategoryCard
               category={key}
-              title={title}
+              title={CATEGORY_LABELS[key]}
               data={categories[key]}
               onChange={(data) => updateCategory(key, data)}
               teachers={teachers}

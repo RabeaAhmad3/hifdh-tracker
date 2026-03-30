@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
@@ -8,7 +9,7 @@ interface StudentRowProps {
   onPress: () => void;
 }
 
-export function StudentRow({ student, onPress }: StudentRowProps) {
+export const StudentRow = memo(function StudentRow({ student, onPress }: StudentRowProps) {
   return (
     <Pressable onPress={onPress}>
       <Card className="flex-row items-center">
@@ -33,4 +34,4 @@ export function StudentRow({ student, onPress }: StudentRowProps) {
       </Card>
     </Pressable>
   );
-}
+});

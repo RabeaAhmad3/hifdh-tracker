@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
   type ReactNode,
@@ -50,6 +51,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const translateY = useSharedValue(-100);
   const idCounter = useRef(0);
   const dismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (dismissTimer.current) clearTimeout(dismissTimer.current);
+    };
+  }, []);
 
   const clearToast = useCallback(() => {
     setToast(null);

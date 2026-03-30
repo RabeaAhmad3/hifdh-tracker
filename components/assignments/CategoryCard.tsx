@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import {
   FlatList,
   Modal,
@@ -168,7 +168,7 @@ function PassToggle({
 // CategoryCard
 // ---------------------------------------------------------------------------
 
-export function CategoryCard({
+export const CategoryCard = memo(function CategoryCard({
   category,
   title,
   data,
@@ -183,15 +183,27 @@ export function CategoryCard({
   const showMistakesPauses =
     category === 'previous_lesson' || category === 'revision';
 
-  const selectedSurah =
-    data.surah_number != null
-      ? SURAHS.find((s) => s.number === data.surah_number)
-      : null;
+  const selectedSurah = useMemo(
+    () => (data.surah_number != null ? SURAHS.find((s) => s.number === data.surah_number) ?? null : null),
+    [data.surah_number],
+  );
 
-  const selectedTeacher =
-    data.recited_to != null
-      ? teachers.find((t) => t.id === data.recited_to)
-      : null;
+  const selectedTeacher = useMemo(
+    () => (data.recited_to != null ? teachers.find((t) => t.id === data.recited_to) ?? null : null),
+    [data.recited_to, teachers],
+  );
+
+  const ayahError = useMemo(() => {
+    const maxAyahs = selectedSurah?.totalAyahs ?? Infinity;
+    const start = data.start_ayah ? parseInt(data.start_ayah, 10) : null;
+    const end = data.end_ayah ? parseInt(data.end_ayah, 10) : null;
+    let startError: string | undefined;
+    let endError: string | undefined;
+    if (start != null && start > maxAyahs) startError = `Max ${maxAyahs}`;
+    if (end != null && end > maxAyahs) endError = `Max ${maxAyahs}`;
+    if (start != null && end != null && start > end) startError = 'Must be ≤ end';
+    return startError || endError ? { startError, endError } : null;
+  }, [data.start_ayah, data.end_ayah, selectedSurah]);
 
   const update = (partial: Partial<CategoryFormData>) => {
     onChange({ ...data, ...partial });
@@ -247,8 +259,8 @@ export function CategoryCard({
             </Text>
           </Pressable>
 
-          <PickerModal<Surah>
-            visible={showSurahPicker}
+          {showSurahPicker && <PickerModal<Surah>
+            visible
             onClose={() => setShowSurahPicker(false)}
             title="Select Surah"
             items={SURAHS}
@@ -261,10 +273,10 @@ export function CategoryCard({
                 surah_name: s.name,
               })
             }
-          />
+          />}
 
           {/* Ayah range */}
-          <View className="flex-row gap-3 mb-4">
+          <View className="flex-row gap-3 mb-1">
             <View className="flex-1">
               <Input
                 label="Start Ayah"
@@ -274,20 +286,28 @@ export function CategoryCard({
                   update({ start_ayah: text.replace(/[^0-9]/g, '') })
                 }
                 keyboardType="number-pad"
+                error={ayahError?.startError}
               />
             </View>
             <View className="flex-1">
               <Input
                 label="End Ayah"
-                placeholder="10"
+                placeholder={selectedSurah ? String(selectedSurah.totalAyahs) : '10'}
                 value={data.end_ayah}
                 onChangeText={(text) =>
                   update({ end_ayah: text.replace(/[^0-9]/g, '') })
                 }
                 keyboardType="number-pad"
+                error={ayahError?.endError}
               />
             </View>
           </View>
+          {selectedSurah && (
+            <Text className="font-body text-[12px] text-gray-400 mb-4">
+              {selectedSurah.name} has {selectedSurah.totalAyahs} ayahs
+            </Text>
+          )}
+          {!selectedSurah && <View className="mb-3" />}
 
           {/* Pages completed */}
           <View className="flex-row items-center justify-between mb-4">
@@ -350,15 +370,15 @@ export function CategoryCard({
             </Text>
           </Pressable>
 
-          <PickerModal<{ id: string; full_name: string }>
-            visible={showTeacherPicker}
+          {showTeacherPicker && <PickerModal<{ id: string; full_name: string }>
+            visible
             onClose={() => setShowTeacherPicker(false)}
             title="Select Teacher"
             items={teachers}
             keyExtractor={(t) => t.id}
             labelExtractor={(t) => t.full_name}
             onSelect={(t) => update({ recited_to: t.id })}
-          />
+          />}
 
           {/* Comments */}
           <Input
@@ -375,4 +395,4 @@ export function CategoryCard({
       )}
     </Card>
   );
-}
+});

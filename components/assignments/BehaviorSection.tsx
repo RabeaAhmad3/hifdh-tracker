@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Input } from '@/components/ui/Input';
 import { colors } from '@/lib/colors';
@@ -25,7 +26,7 @@ const ratingStyles: Record<
   needs_improvement: { activeBg: colors.warning, activeText: '#FFFFFF' },
 };
 
-export function BehaviorSection({
+export const BehaviorSection = memo(function BehaviorSection({
   value,
   onChange,
   notes,
@@ -76,4 +77,4 @@ export function BehaviorSection({
       />
     </View>
   );
-}
+});

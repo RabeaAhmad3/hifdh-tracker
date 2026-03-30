@@ -185,49 +185,53 @@ export async function saveStudentDay(
       assignmentRows[0].next_assignment = nextAssignment;
     }
 
-    // Upsert assignments (unique on student_id + date + category)
-    if (assignmentRows.length > 0) {
-      const { error: assignErr } = await supabase
-        .from('assignments')
-        .upsert(assignmentRows, {
-          onConflict: 'student_id,date,category',
-        });
-
-      if (assignErr) return { error: assignErr.message };
+    // Validate ayah ranges
+    for (const row of assignmentRows) {
+      if (row.start_ayah != null && row.end_ayah != null && row.start_ayah > row.end_ayah) {
+        return { error: 'Start ayah must be less than or equal to end ayah' };
+      }
     }
 
-    // Delete disabled categories (remove stale rows if teacher un-toggled a card)
+    // Run all DB operations in parallel (they are independent)
     const disabledCategories = categories
       .filter((c) => !c.enabled)
       .map((c) => c.category);
 
-    if (disabledCategories.length > 0) {
-      const { error: delErr } = await supabase
-        .from('assignments')
-        .delete()
-        .eq('student_id', studentId)
-        .eq('date', date)
-        .in('category', disabledCategories);
+    const operations = await Promise.all([
+      // Upsert assignments (unique on student_id + date + category)
+      assignmentRows.length > 0
+        ? supabase
+            .from('assignments')
+            .upsert(assignmentRows, { onConflict: 'student_id,date,category' })
+        : null,
+      // Delete disabled categories (remove stale rows if teacher un-toggled a card)
+      disabledCategories.length > 0
+        ? supabase
+            .from('assignments')
+            .delete()
+            .eq('student_id', studentId)
+            .eq('date', date)
+            .in('category', disabledCategories)
+        : null,
+      // Upsert behavior log if provided
+      behavior
+        ? supabase
+            .from('behavior_logs')
+            .upsert(
+              {
+                student_id: studentId,
+                teacher_id: teacherId,
+                date,
+                rating: behavior.rating,
+                notes: behavior.notes,
+              },
+              { onConflict: 'student_id,date' },
+            )
+        : null,
+    ]);
 
-      if (delErr) return { error: delErr.message };
-    }
-
-    // Upsert behavior log if provided
-    if (behavior) {
-      const { error: behaviorErr } = await supabase
-        .from('behavior_logs')
-        .upsert(
-          {
-            student_id: studentId,
-            teacher_id: teacherId,
-            date,
-            rating: behavior.rating,
-            notes: behavior.notes,
-          },
-          { onConflict: 'student_id,date' },
-        );
-
-      if (behaviorErr) return { error: behaviorErr.message };
+    for (const op of operations) {
+      if (op?.error) return { error: op.error.message };
     }
 
     return { error: null };

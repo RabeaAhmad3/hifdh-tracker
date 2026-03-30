@@ -1,14 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { format } from 'date-fns';
 import { supabase } from '@/lib/supabase';
+import { STUDENT_COLUMNS, toDateString } from '@/lib/constants';
 import type { Student } from '@/lib/types';
 
 export interface StudentWithStatus extends Student {
   hasAssignmentToday: boolean;
 }
-
-const STUDENT_COLUMNS =
-  'id, full_name, arabic_name, current_surah, current_juz, notes, created_at, updated_at' as const;
 
 export function useStudents() {
   const [students, setStudents] = useState<StudentWithStatus[]>([]);
@@ -21,7 +18,7 @@ export function useStudents() {
     setError(null);
 
     try {
-      const today = format(new Date(), 'yyyy-MM-dd');
+      const today = toDateString(new Date());
 
       // Fetch students and today's assignment status in parallel
       const [studentsResult, assignmentsResult] = await Promise.all([

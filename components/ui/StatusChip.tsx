@@ -1,6 +1,7 @@
 import { View, Text } from 'react-native';
 import type { PassStatus, BehaviorRating, AttendanceStatus } from '@/lib/types';
 import { colors } from '@/lib/colors';
+import { formatLabel } from '@/lib/constants';
 
 type Status = PassStatus | BehaviorRating | AttendanceStatus;
 
@@ -20,13 +21,6 @@ const colorMap: Record<Status, { bg: string; text: string }> = {
   late: { bg: `rgba(212,146,42,0.15)`, text: 'text-warning' },
   left_early: { bg: `rgba(212,146,42,0.15)`, text: 'text-warning' },
 };
-
-function formatLabel(status: string): string {
-  return status
-    .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}
 
 export function StatusChip({ status, label }: StatusChipProps) {
   const chipColors = colorMap[status];

@@ -1,18 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, Text, FlatList, Pressable, Platform } from 'react-native';
+import { View, Text, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { ChevronLeft, ChevronRight, ClipboardCheck } from 'lucide-react-native';
-import DateTimePicker, {
-  type DateTimePickerEvent,
-} from '@react-native-community/datetimepicker';
-import { format, addDays, subDays } from 'date-fns';
+import { ClipboardCheck } from 'lucide-react-native';
 
 import { fetchForDate, type AssignmentWithStudent } from '@/hooks/useAssignments';
+import { toDateString } from '@/lib/constants';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
+import { DateNavigator } from '@/components/ui/DateNavigator';
 import { AssignmentHistoryRow } from '@/components/assignments/AssignmentHistoryRow';
-import { colors } from '@/lib/colors';
 
 const PAGE_SIZE = 20;
 
@@ -20,7 +17,6 @@ export default function AssignmentList() {
   const router = useRouter();
 
   const [date, setDate] = useState<Date>(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [assignments, setAssignments] = useState<AssignmentWithStudent[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(0);
@@ -38,7 +34,7 @@ export default function AssignmentList() {
 
       try {
         setError(null);
-        const dateStr = format(d, 'yyyy-MM-dd');
+        const dateStr = toDateString(d);
         const { data, count } = await fetchForDate(dateStr, pageNum, PAGE_SIZE);
 
         if (pageNum === 0) {
@@ -73,25 +69,6 @@ export default function AssignmentList() {
     loadAssignments(date, nextPage);
   }, [loading, refreshing, page, totalCount, date, loadAssignments]);
 
-  // Date navigation
-  const goToPreviousDay = () => setDate((d) => subDays(d, 1));
-  const goToNextDay = () => setDate((d) => addDays(d, 1));
-
-  const handleDateChange = (
-    _event: DateTimePickerEvent,
-    selectedDate?: Date,
-  ) => {
-    if (Platform.OS === 'android') {
-      setShowDatePicker(false);
-    }
-    if (selectedDate != null) {
-      setDate(selectedDate);
-      if (Platform.OS === 'ios') {
-        setShowDatePicker(false);
-      }
-    }
-  };
-
   const renderItem = useCallback(
     ({ item }: { item: AssignmentWithStudent }) => (
       <AssignmentHistoryRow
@@ -117,8 +94,6 @@ export default function AssignmentList() {
     [],
   );
 
-  const dateDisplay = format(date, 'EEE, MMM d, yyyy');
-
   return (
     <SafeAreaView className="flex-1 bg-offwhite" edges={['top']}>
       <View className="px-4 pt-2 pb-3">
@@ -126,52 +101,7 @@ export default function AssignmentList() {
           Assignments
         </Text>
 
-        {/* Date picker row */}
-        <View className="flex-row items-center justify-between">
-          <Pressable
-            onPress={goToPreviousDay}
-            className="h-12 w-12 items-center justify-center"
-            hitSlop={8}
-          >
-            <ChevronLeft size={24} color={colors.primary} />
-          </Pressable>
-
-          <Pressable onPress={() => setShowDatePicker(true)}>
-            <Text className="font-body-semibold text-[16px] text-charcoal">
-              {dateDisplay}
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={goToNextDay}
-            className="h-12 w-12 items-center justify-center"
-            hitSlop={8}
-          >
-            <ChevronRight size={24} color={colors.primary} />
-          </Pressable>
-        </View>
-
-        {/* Date picker (conditional) */}
-        {showDatePicker && (
-          <View className="mt-2">
-            <DateTimePicker
-              value={date}
-              mode="date"
-              display={Platform.OS === 'ios' ? 'inline' : 'default'}
-              onChange={handleDateChange}
-            />
-            {Platform.OS === 'ios' && (
-              <Pressable
-                onPress={() => setShowDatePicker(false)}
-                className="mt-2 self-center"
-              >
-                <Text className="font-body-semibold text-[14px] text-primary">
-                  Done
-                </Text>
-              </Pressable>
-            )}
-          </View>
-        )}
+        <DateNavigator date={date} onChange={setDate} />
       </View>
 
       {error != null && (

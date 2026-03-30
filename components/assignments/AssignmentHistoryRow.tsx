@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
-import { colors } from '@/lib/colors';
+import { CATEGORY_LABELS } from '@/lib/constants';
 import type { AssignmentCategory } from '@/lib/types';
 import type { AssignmentWithStudent } from '@/hooks/useAssignments';
 
@@ -27,7 +28,7 @@ const categoryChipColors: Record<
   },
 };
 
-export function AssignmentHistoryRow({
+export const AssignmentHistoryRow = memo(function AssignmentHistoryRow({
   assignment,
   onPress,
 }: AssignmentHistoryRowProps) {
@@ -45,7 +46,7 @@ export function AssignmentHistoryRow({
           style={{ backgroundColor: chipColors.bg }}
         >
           <Text className={`font-body-medium text-[13px] ${chipColors.text}`}>
-            {formatCategory(assignment.category)}
+            {CATEGORY_LABELS[assignment.category]}
           </Text>
         </View>
 
@@ -56,11 +57,4 @@ export function AssignmentHistoryRow({
       </Card>
     </Pressable>
   );
-}
-
-function formatCategory(category: string): string {
-  return category
-    .split('_')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
-}
+});

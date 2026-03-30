@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
@@ -7,11 +7,10 @@ import { ChevronLeft } from 'lucide-react-native';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { colors } from '@/lib/colors';
+import { STUDENT_COLUMNS } from '@/lib/constants';
 import type { Student } from '@/lib/types';
 import { AssignmentForm } from '@/components/assignments/AssignmentForm';
-
-const STUDENT_COLUMNS =
-  'id, full_name, arabic_name, current_surah, current_juz, notes' as const;
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 export default function StudentDetail() {
   const router = useRouter();
@@ -53,13 +52,7 @@ export default function StudentDetail() {
   }, [fetchStudent]);
 
   if (loading) {
-    return (
-      <SafeAreaView className="flex-1 bg-offwhite" edges={['top']}>
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color={colors.primary} size="large" />
-        </View>
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (error != null || student == null) {
