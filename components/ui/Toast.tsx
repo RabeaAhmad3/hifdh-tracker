@@ -7,14 +7,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { Text, View } from 'react-native';
+import { Animated, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  runOnJS,
-} from 'react-native-reanimated';
 import { colors } from '@/lib/colors';
 
 type ToastType = 'success' | 'error' | 'info';
@@ -48,14 +42,15 @@ export function useToast(): ToastContextValue {
 export function ToastProvider({ children }: { children: ReactNode }) {
   const insets = useSafeAreaInsets();
   const [toast, setToast] = useState<ToastState | null>(null);
-  const translateY = useSharedValue(-100);
+  const translateY = useRef(new Animated.Value(-100)).current;
   const idCounter = useRef(0);
   const dismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Clean up timer on unmount
+  // Clean up timer and animations on unmount
   useEffect(() => {
     return () => {
       if (dismissTimer.current) clearTimeout(dismissTimer.current);
+      translateY.stopAnimation();
     };
   }, []);
 
@@ -64,9 +59,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const dismiss = useCallback(() => {
-    translateY.value = withTiming(-100, { duration: 300 }, (finished) => {
+    Animated.timing(translateY, {
+      toValue: -100,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(({ finished }) => {
       if (finished) {
-        runOnJS(clearToast)();
+        clearToast();
       }
     });
   }, [translateY, clearToast]);
@@ -82,8 +81,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       setToast({ message, type, id });
 
       // Reset position then animate in
-      translateY.value = -100;
-      translateY.value = withTiming(0, { duration: 300 });
+      translateY.setValue(-100);
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
 
       dismissTimer.current = setTimeout(() => {
         dismiss();
@@ -92,25 +95,19 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     [translateY, dismiss],
   );
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
-
   return (
     <ToastContext.Provider value={{ show }}>
       {children}
       {toast && (
         <Animated.View
-          style={[
-            {
-              position: 'absolute',
-              top: insets.top + 8,
-              left: 16,
-              right: 16,
-              zIndex: 9999,
-            },
-            animatedStyle,
-          ]}
+          style={{
+            position: 'absolute',
+            top: insets.top + 8,
+            left: 16,
+            right: 16,
+            zIndex: 9999,
+            transform: [{ translateY }],
+          }}
           pointerEvents="none"
         >
           <View

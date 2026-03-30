@@ -5,8 +5,10 @@ import { LogOut, Plus } from 'lucide-react-native';
 import { colors } from '@/lib/colors';
 import { DAY_LABELS_FULL } from '@/lib/constants';
 import { useAuth } from '@/lib/auth';
+import { useToast } from '@/components/ui/Toast';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { ProfileForm } from '@/components/settings/ProfileForm';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { SectionDivider } from '@/components/ui/SectionDivider';
@@ -20,7 +22,8 @@ import {
 import type { TeacherAvailability } from '@/lib/types';
 
 export default function TeacherSettings() {
-  const { profile, signOut } = useAuth();
+  const { session, profile, signOut, refreshProfile } = useAuth();
+  const toast = useToast();
   const { slots, loading: slotsLoading, addSlot, toggleSlot, deleteSlot } = useTeacherAvailability(profile?.id);
   const { meetings, loading: meetingsLoading, cancel } = useUpcomingMeetings(profile?.id, 'teacher');
   const [showForm, setShowForm] = useState(false);
@@ -67,6 +70,15 @@ export default function TeacherSettings() {
           <Text className="mt-3 font-heading text-[20px] text-charcoal">{profile.full_name}</Text>
           <Text className="mt-1 font-body text-[13px] text-gray-400">Teacher</Text>
         </View>
+
+        <ProfileForm
+          profile={profile}
+          email={session?.user?.email ?? ''}
+          onSaved={async () => {
+            await refreshProfile();
+            toast.show('Profile updated', 'success');
+          }}
+        />
 
         <View className="mx-4">
           <Button variant="ghost" onPress={signOut}>

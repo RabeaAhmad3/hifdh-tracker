@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { type Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { type Profile } from '@/lib/types';
+import { PROFILE_COLUMNS } from '@/lib/constants';
 import { getCurrentPushToken, clearCachedPushToken } from '@/hooks/useNotifications';
 
 interface AuthContextType {
@@ -16,6 +17,7 @@ interface AuthContextType {
     inviteCode: string
   ): Promise<{ error: string | null }>;
   signOut(): Promise<void>;
+  refreshProfile(): Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -23,7 +25,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 async function fetchProfile(userId: string, retries = 2): Promise<Profile | null> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, role, full_name, avatar_url, created_at, updated_at')
+    .select(PROFILE_COLUMNS)
     .eq('id', userId)
     .single();
 
@@ -145,6 +147,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: null };
   }, []);
 
+  const refreshProfile = useCallback(async () => {
+    const userId = currentUserIdRef.current;
+    if (!userId) return;
+    const p = await fetchProfile(userId);
+    if (p) setProfile(p);
+  }, []);
+
   const handleSignOut = useCallback(async () => {
     // Remove push token before signing out so device stops receiving notifications
     try {
@@ -164,8 +173,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ session, profile, isLoading, signIn, signUp, signOut: handleSignOut }),
-    [session, profile, isLoading, signIn, signUp, handleSignOut]
+    () => ({ session, profile, isLoading, signIn, signUp, signOut: handleSignOut, refreshProfile }),
+    [session, profile, isLoading, signIn, signUp, handleSignOut, refreshProfile]
   );
 
   return (

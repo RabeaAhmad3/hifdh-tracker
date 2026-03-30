@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { View, Text, FlatList, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Plus, Users } from 'lucide-react-native';
 
 import { useStudents } from '@/hooks/useStudents';
@@ -16,6 +16,12 @@ export default function StudentList() {
   const router = useRouter();
   const { students, loading, error, refresh, searchQuery, setSearchQuery } =
     useStudents();
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh]),
+  );
 
   const renderItem = useCallback(
     ({ item }: { item: StudentWithStatus }) => (
@@ -83,7 +89,7 @@ export default function StudentList() {
       {/* Floating Action Button */}
       <View className="absolute bottom-6 right-6">
         <Pressable
-          onPress={() => router.push('/(teacher)/assignments/new')}
+          onPress={() => router.push('/(teacher)/students/new')}
           className="h-14 w-14 rounded-full bg-primary items-center justify-center shadow-md"
           style={{ elevation: 4 }}
         >

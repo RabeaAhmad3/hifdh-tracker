@@ -4,6 +4,10 @@ import { colors } from '@/lib/colors';
 
 export const APP_NAME = 'Hifdh Tracker';
 
+/** Columns selected when querying the profiles table */
+export const PROFILE_COLUMNS =
+  'id, role, full_name, phone, avatar_url, created_at, updated_at' as const;
+
 /** Columns selected when querying the students table */
 export const STUDENT_COLUMNS =
   'id, full_name, arabic_name, current_surah, current_juz, notes, date_of_birth, created_at, updated_at' as const;

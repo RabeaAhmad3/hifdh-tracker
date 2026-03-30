@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo, useState } from 'react';
-import { FlatList, Pressable, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MessageSquare } from 'lucide-react-native';
 import { useAuth } from '@/lib/auth';
@@ -29,6 +29,14 @@ const ratings: { key: BehaviorRating; label: string }[] = [
 const ItemSeparator = () => <View className="h-2" />;
 
 export default function TeacherAttendance() {
+  return (
+    <SafeAreaView className="flex-1 bg-offwhite" edges={['top']}>
+      <AttendanceContent />
+    </SafeAreaView>
+  );
+}
+
+function AttendanceContent() {
   const { profile } = useAuth();
   const { students, loading: studentsLoading } = useStudents();
   const [date, setDate] = useState(new Date());
@@ -39,7 +47,7 @@ export default function TeacherAttendance() {
   if (studentsLoading) return <LoadingScreen />;
 
   return (
-    <SafeAreaView className="flex-1 bg-offwhite" edges={['top']}>
+    <>
       {/* Header */}
       <View className="px-4 pt-2 pb-1">
         <Text className="font-heading text-[24px] text-charcoal">
@@ -51,9 +59,8 @@ export default function TeacherAttendance() {
       <View className="flex-row mx-4 mt-2 mb-1 bg-gray-100 rounded-button p-1">
         <Pressable
           onPress={() => setSegment('attendance')}
-          className={`flex-1 h-10 items-center justify-center rounded-button ${
-            segment === 'attendance' ? 'bg-white shadow-sm' : ''
-          }`}
+          className="flex-1 h-10 items-center justify-center rounded-button"
+          style={segment === 'attendance' ? styles.activeTab : undefined}
         >
           <Text
             className={`font-body-medium text-[14px] ${
@@ -65,9 +72,8 @@ export default function TeacherAttendance() {
         </Pressable>
         <Pressable
           onPress={() => setSegment('behavior')}
-          className={`flex-1 h-10 items-center justify-center rounded-button ${
-            segment === 'behavior' ? 'bg-white shadow-sm' : ''
-          }`}
+          className="flex-1 h-10 items-center justify-center rounded-button"
+          style={segment === 'behavior' ? styles.activeTab : undefined}
         >
           <Text
             className={`font-body-medium text-[14px] ${
@@ -90,9 +96,20 @@ export default function TeacherAttendance() {
       ) : (
         <BehaviorSegment students={students} dateStr={dateStr} teacherId={teacherId} />
       )}
-    </SafeAreaView>
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  activeTab: {
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+});
 
 // ---- Segment Components (hooks only fire when mounted) ----
 
